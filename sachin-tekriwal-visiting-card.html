@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Sachin Tekriwal"/>
+<meta name="theme-color" content="#06090f"/>
+<link rel="manifest" id="pwa-manifest"/>
+<title>Sachin Tekriwal</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#06090f;
+  --card:#0d1222;
+  --card2:#111828;
+  --prism:linear-gradient(100deg,#e0f0ff,#c8b8ff,#f5c8ff,#a8d8ff,#a8ffe8,#ffe8a8,#e0f0ff);
+  --gold:#c8a840;
+  --gold2:#f0d060;
+  --white:#eaf2ff;
+  --muted:rgba(180,200,240,0.5);
+  --border:rgba(255,255,255,0.09);
+}
+
+html,body{
+  min-height:100vh;
+  background:var(--bg);
+  background-image:
+    radial-gradient(ellipse 70% 50% at 20% 10%, rgba(160,120,255,0.09) 0%,transparent 55%),
+    radial-gradient(ellipse 60% 60% at 80% 90%, rgba(80,180,255,0.08) 0%,transparent 55%);
+  font-family:'Inter',sans-serif;
+  color:var(--white);
+  display:flex;align-items:center;justify-content:center;
+  padding:16px 12px;
+}
+
+/* ── LANG ── */
+.lang-bar{position:fixed;top:10px;right:10px;z-index:300;}
+.lang-btn{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);
+  color:rgba(210,230,255,0.9);font-size:11.5px;font-weight:600;
+  padding:6px 12px;border-radius:20px;cursor:pointer;
+  display:flex;align-items:center;gap:4px;
+  box-shadow:0 2px 12px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.1);
+  backdrop-filter:blur(12px);
+}
+.lang-btn:hover{background:rgba(255,255,255,0.1);}
+.lang-dropdown{
+  position:absolute;top:calc(100%+7px);right:0;margin-top:6px;
+  background:rgba(8,12,24,0.97);border:1px solid rgba(255,255,255,0.1);
+  border-radius:14px;min-width:175px;max-height:75vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,0.8);display:none;z-index:400;
+  backdrop-filter:blur(20px);
+}
+.lang-dropdown.open{display:block;}
+.lgl{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--muted);padding:9px 13px 3px;}
+.lo{padding:8px 13px;font-size:12px;cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--white);}
+.lo:hover{background:rgba(255,255,255,0.06);}
+.lo.active .ln{background:var(--prism);background-size:200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700;}
+.ld{height:1px;background:rgba(255,255,255,0.07);margin:2px 0;}
+
+/* ══════════════════════════════
+   CARD — 3D extruded border look
+══════════════════════════════ */
+.card-outer{
+  width:100%;max-width:440px;
+  /* 3D frame: stacked box-shadows simulate depth + edge lighting */
+  border-radius:26px;
+  background:linear-gradient(160deg,rgba(255,255,255,0.12) 0%,rgba(255,255,255,0.02) 40%,rgba(0,0,0,0.3) 100%);
+  padding:2px; /* the "border" is this bg showing through */
+  box-shadow:
+    /* outer glow */
+    0 0 0 1px rgba(255,255,255,0.04),
+    /* depth shadow below */
+    0 30px 80px rgba(0,0,0,0.9),
+    /* 3D bottom-right dark edge */
+    6px 8px 20px rgba(0,0,0,0.7),
+    /* 3D top-left light edge */
+    -2px -2px 8px rgba(255,255,255,0.04),
+    /* prismatic glow */
+    0 0 60px rgba(160,120,255,0.08);
+  animation:fadeUp .55s cubic-bezier(.22,1,.36,1) both;
+}
+
+.card{
+  border-radius:24px;
+  background:var(--card);
+  overflow:hidden;
+  position:relative;
+}
+
+/* animated prismatic top bar — thicker, more visible */
+.card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;z-index:20;
+  background:linear-gradient(90deg,#e0f0ff,#c8b8ff,#f5c8ff,#80c8ff,#80ffe0,#ffe880,#f5c8ff,#e0f0ff);
+  background-size:300% 100%;
+  animation:shimmer 5s linear infinite;
+  box-shadow:0 0 12px rgba(200,180,255,0.6),0 0 24px rgba(200,180,255,0.3);
+}
+
+/* inner glass top sheen */
+.card::after{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,0.04) 0%,transparent 18%),
+    radial-gradient(ellipse 90% 30% at 50% 0%,rgba(200,180,255,0.05) 0%,transparent 70%);
+}
+
+@keyframes shimmer{0%{background-position:0 0}100%{background-position:300% 0}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── HEADER ── */
+.header{
+  position:relative;z-index:2;
+  padding:22px 22px 16px;
+  background:linear-gradient(160deg,rgba(255,255,255,0.04) 0%,transparent 60%);
+  border-bottom:1px solid var(--border);
+}
+
+.name{
+  font-family:'Cormorant Garamond',serif;
+  font-size:30px;font-weight:700;line-height:1.0;letter-spacing:0.3px;
+  background:linear-gradient(130deg,#ffffff 0%,#d8e8ff 40%,#c0a8ff 70%,#f0b8ff 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:6px;
+}
+
+.expert-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 14px;border-radius:20px;
+  background:linear-gradient(135deg,rgba(200,168,64,0.18),rgba(240,208,96,0.1));
+  border:1px solid rgba(200,168,64,0.35);
+  font-size:12px;font-weight:700;letter-spacing:0.8px;
+  color:var(--gold2);
+  box-shadow:0 0 12px rgba(200,168,64,0.12),inset 0 1px 0 rgba(240,208,96,0.12);
+  text-transform:uppercase;
+}
+.expert-badge::before{content:'⚡';font-size:13px;}
+
+/* ── BRAND LOGOS ROW ── */
+.brands{
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:space-around;
+  padding:14px 16px 12px;
+  border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,0.015);
+}
+
+.brand{
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  text-decoration:none;cursor:pointer;
+  transition:transform .2s;
+}
+.brand:hover{transform:translateY(-2px);}
+.brand-logo-wrap{
+  width:44px;height:44px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+  /* 3D logo effect */
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.5),
+    0 1px 0 rgba(255,255,255,0.12) inset,
+    0 -1px 0 rgba(0,0,0,0.4) inset;
+}
+.brand-name{font-size:9px;font-weight:600;color:var(--muted);letter-spacing:.5px;text-align:center;max-width:56px;}
+
+/* NKBWorks */
+.bl-nkb{background:linear-gradient(145deg,#0d2040,#1a3a70);}
+/* SearchingTechRiva */
+.bl-str{background:linear-gradient(145deg,#14082a,#2a1060);}
+/* myadvise.info */
+.bl-mai{background:linear-gradient(145deg,#062018,#0e4030);}
+/* BICA */
+.bl-bica{background:linear-gradient(145deg,#300c04,#601808);}
+
+/* ── ROLES ── */
+.roles{
+  position:relative;z-index:2;
+  padding:12px 16px;
+  border-bottom:1px solid var(--border);
+  display:flex;flex-direction:column;gap:7px;
+}
+
+.role{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 14px;border-radius:12px;
+  /* 3D card effect for each role */
+  background:linear-gradient(145deg,rgba(255,255,255,0.06) 0%,rgba(255,255,255,0.02) 100%);
+  border:1px solid rgba(255,255,255,0.09);
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.4),
+    inset 0 1px 0 rgba(255,255,255,0.08),
+    inset 0 -1px 0 rgba(0,0,0,0.2);
+  transition:all .2s;
+  position:relative;overflow:hidden;
+}
+.role::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);
+}
+.role:hover{
+  background:linear-gradient(145deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03));
+  border-color:rgba(255,255,255,0.16);
+  transform:translateX(3px);
+  box-shadow:0 3px 14px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.role-dot{
+  width:8px;height:8px;border-radius:50%;flex-shrink:0;
+  box-shadow:0 0 6px currentColor;
+}
+.dot-blue{color:#60a8ff;background:#60a8ff;}
+.dot-purple{color:#a878ff;background:#a878ff;}
+.dot-teal{color:#40d4a0;background:#40d4a0;}
+.dot-orange{color:#ff9850;background:#ff9850;}
+.dot-pink{color:#f068c8;background:#f068c8;}
+
+.role-txt{flex:1;min-width:0;}
+.role-title{font-size:13.5px;font-weight:700;color:#eaf2ff;line-height:1.2;letter-spacing:.1px;}
+.role-org{font-size:11px;color:rgba(180,205,255,0.55);margin-top:2px;font-weight:400;}
+
+/* ── SOCIALS ── */
+.socials{
+  position:relative;z-index:2;
+  display:grid;grid-template-columns:1fr 1fr;gap:6px;
+  padding:10px 16px;
+  border-bottom:1px solid var(--border);
+}
+.slink{
+  display:flex;align-items:center;gap:7px;
+  padding:9px 11px;border-radius:10px;
+  text-decoration:none;color:var(--white);
+  background:linear-gradient(145deg,rgba(255,255,255,0.05),rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.08);
+  font-size:11.5px;font-weight:500;
+  box-shadow:0 2px 6px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.07);
+  transition:all .18s;position:relative;overflow:hidden;
+}
+.slink::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.09),transparent);}
+.slink:hover{background:linear-gradient(145deg,rgba(255,255,255,0.09),rgba(255,255,255,0.03));transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,0.45);}
+.si{font-size:15px;flex-shrink:0;}
+.st{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+.slink.full{grid-column:1/-1;}
+
+/* ── CONTACTS + QR ── */
+.bottom{position:relative;z-index:2;display:flex;border-bottom:1px solid var(--border);}
+.contacts{flex:1;padding:10px 14px;display:flex;flex-direction:column;gap:5px;border-right:1px solid var(--border);}
+
+.crow{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 10px;border-radius:9px;
+  text-decoration:none;color:var(--white);
+  background:linear-gradient(145deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.07);
+  font-size:11px;font-weight:500;
+  box-shadow:0 2px 6px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.06);
+  transition:all .18s;cursor:pointer;position:relative;overflow:hidden;
+}
+.crow::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent);}
+.crow:hover{background:linear-gradient(145deg,rgba(255,255,255,0.08),rgba(255,255,255,0.02));transform:translateX(2px);}
+.ci{font-size:13px;width:16px;text-align:center;flex-shrink:0;}
+.ct{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cb{margin-left:auto;font-size:8.5px;padding:2px 6px;border-radius:8px;background:rgba(255,255,255,0.06);color:rgba(190,215,255,.65);border:1px solid rgba(255,255,255,0.09);white-space:nowrap;flex-shrink:0;}
+
+#phones-revealed{display:none;flex-direction:column;gap:5px;}
+
+.qr-panel{width:98px;flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:10px 6px;gap:5px;}
+.qr-box{
+  width:76px;height:76px;background:#fff;border-radius:9px;padding:4px;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 16px rgba(0,0,0,0.55),0 0 0 1px rgba(255,255,255,0.12),inset 0 1px 0 rgba(255,255,255,0.9);
+}
+.qr-box canvas,.qr-box img{width:68px!important;height:68px!important;}
+.qr-label{font-size:8px;color:var(--muted);text-align:center;line-height:1.4;}
+
+/* ── CTAs ── */
+.ctas{position:relative;z-index:2;padding:10px 16px 12px;display:flex;gap:8px;}
+.btn{
+  flex:1;padding:11px 6px;border-radius:11px;
+  font-size:12px;font-weight:700;
+  cursor:pointer;border:none;text-decoration:none;
+  display:flex;align-items:center;justify-content:center;gap:5px;
+  transition:transform .15s,box-shadow .15s;
+  position:relative;overflow:hidden;letter-spacing:.3px;
+}
+.btn::before{content:'';position:absolute;top:0;left:0;right:0;height:45%;background:rgba(255,255,255,0.08);pointer-events:none;}
+.btn:hover{transform:translateY(-2px);}
+.btn:active{transform:scale(.97);}
+
+.btn-p{
+  background:linear-gradient(135deg,#dce8ff,#c0a8ff,#f0b8ff,#a8d8ff);
+  background-size:200% 200%;animation:shimmer 5s linear infinite;
+  color:#080d1c;
+  box-shadow:0 4px 20px rgba(180,150,255,0.35),inset 0 1px 0 rgba(255,255,255,0.45),0 1px 0 rgba(0,0,0,0.2);
+}
+.btn-s{
+  background:linear-gradient(145deg,rgba(255,255,255,0.06),rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.1);color:rgba(215,232,255,.85);
+  box-shadow:0 2px 8px rgba(0,0,0,0.35),inset 0 1px 0 rgba(255,255,255,0.07);
+}
+
+/* ── FOOTER ── */
+.footer{position:relative;z-index:2;padding:8px 16px 13px;text-align:center;font-size:10px;color:var(--muted);}
+.footer a{background:var(--prism);background-size:200%;animation:shimmer 5s linear infinite;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-decoration:none;font-weight:700;}
+
+[dir=rtl] .crow:hover{transform:translateX(-2px);}
+[dir=rtl] .contacts{border-right:none;border-left:1px solid var(--border);}
+[dir=rtl] .role:hover{transform:translateX(-3px);}
+</style>
+</head>
+<body>
+
+<!-- LANG BAR -->
+<div class="lang-bar">
+  <div style="position:relative">
+    <button class="lang-btn" onclick="toggleLang()" id="lbtn">🌐 EN ▾</button>
+    <div class="lang-dropdown" id="ldrop">
+      <div class="lgl">🌏 South Asia</div>
+      <div class="lo active" onclick="setLang('en')" data-lang="en"><span>🇬🇧</span><span class="ln">English</span></div>
+      <div class="lo" onclick="setLang('hi')" data-lang="hi"><span>🇮🇳</span><span class="ln">हिंदी</span></div>
+      <div class="lo" onclick="setLang('ne')" data-lang="ne"><span>🇳🇵</span><span class="ln">नेपाली</span></div>
+      <div class="lo" onclick="setLang('si')" data-lang="si"><span>🇱🇰</span><span class="ln">සිංහල</span></div>
+      <div class="lo" onclick="setLang('ur')" data-lang="ur"><span>🇵🇰</span><span class="ln">اردو</span></div>
+      <div class="ld"></div>
+      <div class="lgl">🌍 Middle East / Europe</div>
+      <div class="lo" onclick="setLang('ar')" data-lang="ar"><span>🇦🇪</span><span class="ln">العربية</span></div>
+      <div class="lo" onclick="setLang('de')" data-lang="de"><span>🇩🇪</span><span class="ln">Deutsch</span></div>
+      <div class="lo" onclick="setLang('fr')" data-lang="fr"><span>🇫🇷</span><span class="ln">Français</span></div>
+      <div class="lo" onclick="setLang('es')" data-lang="es"><span>🇪🇸</span><span class="ln">Español</span></div>
+      <div class="ld"></div>
+      <div class="lgl">🌏 East Asia</div>
+      <div class="lo" onclick="setLang('zh')" data-lang="zh"><span>🇨🇳</span><span class="ln">中文</span></div>
+      <div class="lo" onclick="setLang('ja')" data-lang="ja"><span>🇯🇵</span><span class="ln">日本語</span></div>
+      <div class="lo" onclick="setLang('ko')" data-lang="ko"><span>🇰🇷</span><span class="ln">한국어</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- CARD OUTER = 3D frame -->
+<div class="card-outer">
+<div class="card">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="name">Sachin Tekriwal</div>
+    <div class="expert-badge" id="t-expert">AI Automation Expert</div>
+  </div>
+
+  <!-- BRAND LOGOS -->
+  <div class="brands">
+
+    <!-- NKBWorks -->
+    <a class="brand" href="https://nkbworks.com" target="_blank">
+      <div class="brand-logo-wrap bl-nkb">
+        <svg width="30" height="30" viewBox="0 0 30 30">
+          <text x="4" y="23" font-size="20" font-weight="800" fill="url(#gn)" font-family="Inter,sans-serif">N</text>
+          <defs><linearGradient id="gn" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#80c0ff"/><stop offset="100%" stop-color="#4080d0"/></linearGradient></defs>
+        </svg>
+      </div>
+      <span class="brand-name">NKBWorks</span>
+    </a>
+
+    <!-- SearchingTechRiva -->
+    <a class="brand" href="https://searchingtechriva.com" target="_blank">
+      <div class="brand-logo-wrap bl-str">
+        <svg width="36" height="30" viewBox="0 0 36 30">
+          <text x="2" y="22" font-size="13" font-weight="800" fill="url(#gs)" font-family="Inter,sans-serif">STR</text>
+          <defs><linearGradient id="gs" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#c090ff"/><stop offset="100%" stop-color="#8040d0"/></linearGradient></defs>
+        </svg>
+      </div>
+      <span class="brand-name">STRiva</span>
+    </a>
+
+    <!-- myadvise.info — speech bubble M logo -->
+    <a class="brand" href="https://myadvise.info" target="_blank">
+      <div class="brand-logo-wrap bl-mai">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <!-- speech bubble -->
+          <path d="M4 5C4 3.9 4.9 3 6 3H26C27.1 3 28 3.9 28 5V20C28 21.1 27.1 22 26 22H19L15 28L11 22H6C4.9 22 4 21.1 4 20V5Z" fill="#0e5040"/>
+          <path d="M4 5C4 3.9 4.9 3 6 3H26C27.1 3 28 3.9 28 5V20C28 21.1 27.1 22 26 22H19L15 28L11 22H6C4.9 22 4 21.1 4 20V5Z" fill="none" stroke="#20d4a0" stroke-width="1.2" opacity="0.7"/>
+          <!-- M letter -->
+          <text x="9" y="18" font-size="13" font-weight="800" fill="url(#gm)" font-family="Inter,sans-serif">M</text>
+          <!-- notify dot -->
+          <circle cx="26" cy="4" r="3" fill="#20d4a0"/>
+          <defs><linearGradient id="gm" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#40e8b0"/><stop offset="100%" stop-color="#18a878"/></linearGradient></defs>
+        </svg>
+      </div>
+      <span class="brand-name">myadvise</span>
+    </a>
+
+    <!-- BICA — creative arts, bold B with brush stroke -->
+    <a class="brand" href="https://bicainstitute.com" target="_blank">
+      <div class="brand-logo-wrap bl-bica">
+        <svg width="30" height="30" viewBox="0 0 30 30">
+          <!-- bold B with star accent -->
+          <text x="3" y="24" font-size="22" font-weight="900" fill="url(#gb)" font-family="Cormorant Garamond,serif">B</text>
+          <!-- small star top right -->
+          <text x="20" y="12" font-size="9" fill="#ff9860">✦</text>
+          <defs><linearGradient id="gb" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ff9860"/><stop offset="100%" stop-color="#c04818"/></linearGradient></defs>
+        </svg>
+      </div>
+      <span class="brand-name">BICA</span>
+    </a>
+
+  </div>
+
+  <!-- ROLES — larger text, highlighted cards -->
+  <div class="roles">
+
+    <div class="role">
+      <div class="role-dot dot-blue"></div>
+      <div class="role-txt">
+        <div class="role-title" id="r1t">Founder &amp; CTO</div>
+        <div class="role-org" id="r1o">NKBWorks · Web Dev &amp; Digital Services</div>
+      </div>
+    </div>
+
+    <div class="role">
+      <div class="role-dot dot-purple"></div>
+      <div class="role-txt">
+        <div class="role-title" id="r2t">Founder &amp; CTO</div>
+        <div class="role-org" id="r2o">SearchingTechRiva · AI/ML Education</div>
+      </div>
+    </div>
+
+    <div class="role">
+      <div class="role-dot dot-teal"></div>
+      <div class="role-txt">
+        <div class="role-title" id="r3t">CTO</div>
+        <div class="role-org" id="r3o">myadvise.info · Advisory Platform</div>
+      </div>
+    </div>
+
+    <div class="role">
+      <div class="role-dot dot-orange"></div>
+      <div class="role-txt">
+        <div class="role-title" id="r4t">Global Head – Franchise Development</div>
+        <div class="role-org" id="r4o">BICA · India · Nepal · UAE</div>
+      </div>
+    </div>
+
+    <div class="role">
+      <div class="role-dot dot-pink"></div>
+      <div class="role-txt">
+        <div class="role-title" id="r5t">Teacher &amp; Mentor</div>
+        <div class="role-org" id="r5o">AI/ML · Automation · Web Dev</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SOCIAL LINKS -->
+  <div class="socials">
+    <a class="slink" href="https://www.linkedin.com/in/sachin-tekriwal-bb816217" target="_blank">
+      <span class="si"><svg width="15" height="15" viewBox="0 0 24 24" fill="#6ab0e8"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.37V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.61 0 4.28 2.38 4.28 5.47v6.27zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45C23.2 24 24 23.23 24 22.27V1.73C24 .77 23.2 0 22.22 0z"/></svg></span>
+      <span class="st">LinkedIn</span>
+    </a>
+    <a class="slink" href="https://www.youtube.com/@sachintekriwal" target="_blank">
+      <span class="si"><svg width="15" height="15" viewBox="0 0 24 24" fill="#ff7070"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1C4.5 20.5 12 20.5 12 20.5s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1C24 15.9 24 12 24 12s0-3.9-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg></span>
+      <span class="st">@sachintekriwal</span>
+    </a>
+    <a class="slink" href="https://www.youtube.com/@travelwithpihu" target="_blank">
+      <span class="si">✈️</span>
+      <span class="st">Travel with Pihu</span>
+    </a>
+    <a class="slink" href="https://sachintekriwal.com/10minutekiseva.html" target="_blank">
+      <span class="si">🙏</span>
+      <span class="st">#10MinuteKiSeva</span>
+    </a>
+  </div>
+
+  <!-- CONTACTS + QR -->
+  <div class="bottom">
+    <div class="contacts">
+      <a class="crow" href="https://sachintekriwal.com" target="_blank">
+        <span class="ci">🌐</span><span class="ct">sachintekriwal.com</span>
+        <span class="cb" id="b-web">Web</span>
+      </a>
+      <a class="crow" href="https://nepal.nkbworks.com" target="_blank">
+        <span class="ci">🇳🇵</span><span class="ct">nepal.nkbworks.com</span>
+        <span class="cb">Nepal</span>
+      </a>
+      <div class="crow" onclick="togglePhones()">
+        <span class="ci">📞</span>
+        <span class="ct" id="phone-lbl">🇮🇳 India &amp; 🇳🇵 Nepal</span>
+        <span class="cb" id="b-show">Show</span>
+      </div>
+      <div id="phones-revealed">
+        <a class="crow" href="tel:+919987919292"><span class="ci">📱</span><span class="ct">+91 99879 19292</span><span class="cb" id="b-p1">IN 1</span></a>
+        <a class="crow" href="tel:+919892545437"><span class="ci">📱</span><span class="ct">+91 98925 45437</span><span class="cb" id="b-p2">IN 2</span></a>
+        <a class="crow" href="#"><span class="ci">🇳🇵</span><span class="ct" id="np-num">+977 98XX-XXXXXX</span><span class="cb" id="b-np">NP</span></a>
+      </div>
+      <a class="crow" href="https://wa.me/919987919292" target="_blank">
+        <span class="ci">💬</span><span class="ct" id="b-wa">WhatsApp</span>
+        <span class="cb">WA</span>
+      </a>
+    </div>
+    <div class="qr-panel">
+      <div class="qr-box" id="qrcode"></div>
+      <div class="qr-label" id="t-scan">Scan to<br>visit site</div>
+    </div>
+  </div>
+
+  <!-- CTAs -->
+  <div class="ctas">
+    <a class="btn btn-p" href="https://wa.me/919987919292" target="_blank">💬 <span id="btn-talk">Let's Talk</span></a>
+    <a class="btn btn-s" href="https://www.linkedin.com/in/sachin-tekriwal-bb816217" target="_blank">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" opacity=".8"><path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.37V9h3.41v1.56h.05c.47-.9 1.64-1.85 3.37-1.85 3.61 0 4.28 2.38 4.28 5.47v6.27zM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12zm1.78 13.02H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45C23.2 24 24 23.23 24 22.27V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+      <span id="btn-li">LinkedIn</span>
+    </a>
+    <a class="btn btn-s" href="https://sachintekriwal.com" target="_blank">🌐 <span id="btn-site">My Site</span></a>
+  </div>
+
+  <div class="footer">
+    🇮🇳 Mumbai &nbsp;·&nbsp; 🇳🇵 Nepal &nbsp;·&nbsp; 🇦🇪 UAE &nbsp;·&nbsp;
+    <a href="https://nkbworks.com" target="_blank">nkbworks.com</a>
+  </div>
+
+</div><!-- .card -->
+</div><!-- .card-outer -->
+
+<script>
+new QRCode(document.getElementById("qrcode"),{
+  text:"https://sachintekriwal.com",width:68,height:68,
+  colorDark:"#000",colorLight:"#fff",correctLevel:QRCode.CorrectLevel.M
+});
+
+let phonesOpen=false,lang='en';
+function togglePhones(){
+  phonesOpen=!phonesOpen;
+  const r=document.getElementById('phones-revealed');
+  r.style.display=phonesOpen?'flex':'none';
+  r.style.flexDirection='column';r.style.gap='5px';
+  const d=L[lang]||L.en;
+  document.getElementById('b-show').textContent=phonesOpen?d.hide:d.show;
+}
+
+const L={
+  en:{flag:"🇬🇧",code:"EN",expert:"⚡ AI Automation Expert",
+    r1t:"Founder & CTO",r1o:"NKBWorks · Web Dev & Digital Services",
+    r2t:"Founder & CTO",r2o:"SearchingTechRiva · AI/ML Education",
+    r3t:"CTO",r3o:"myadvise.info · Advisory Platform",
+    r4t:"Global Head – Franchise Development",r4o:"BICA · India · Nepal · UAE",
+    r5t:"Teacher & Mentor",r5o:"AI/ML · Automation · Web Dev",
+    bweb:"Web",bp1:"IN 1",bp2:"IN 2",bnp:"NP",bwa:"WhatsApp",
+    scan:"Scan to\nvisit site",talk:"Let's Talk",li:"LinkedIn",site:"My Site",
+    phoneLbl:"🇮🇳 India & 🇳🇵 Nepal",show:"Show",hide:"Hide",np:"+977 98XX-XXXXXX"},
+  hi:{flag:"🇮🇳",code:"HI",expert:"⚡ AI ऑटोमेशन विशेषज्ञ",
+    r1t:"संस्थापक & CTO",r1o:"NKBWorks · वेब डेव",
+    r2t:"संस्थापक & CTO",r2o:"SearchingTechRiva · AI/ML शिक्षा",
+    r3t:"CTO",r3o:"myadvise.info · सलाह मंच",
+    r4t:"ग्लोबल हेड – फ्रेंचाइज़",r4o:"BICA · भारत · नेपाल · UAE",
+    r5t:"शिक्षक & मेंटर",r5o:"AI/ML · ऑटोमेशन · वेब",
+    bweb:"वेब",bp1:"IN 1",bp2:"IN 2",bnp:"NP",bwa:"व्हाट्सएप",
+    scan:"स्कैन करें\nसाइट देखें",talk:"बात करें",li:"LinkedIn",site:"मेरी साइट",
+    phoneLbl:"🇮🇳 भारत & 🇳🇵 नेपाल",show:"दिखाएं",hide:"छिपाएं",np:"+977 98XX-XXXXXX"},
+  ne:{flag:"🇳🇵",code:"NE",expert:"⚡ AI स्वचालन विशेषज्ञ",
+    r1t:"संस्थापक र CTO",r1o:"NKBWorks · वेब डेभ",
+    r2t:"संस्थापक र CTO",r2o:"SearchingTechRiva · AI/ML शिक्षा",
+    r3t:"CTO",r3o:"myadvise.info · सल्लाह मञ्च",
+    r4t:"ग्लोबल हेड – फ्रान्चाइज",r4o:"BICA · भारत · नेपाल · UAE",
+    r5t:"शिक्षक र सल्लाहकार",r5o:"AI/ML · स्वचालन · वेब",
+    bweb:"वेब",bp1:"IN 1",bp2:"IN 2",bnp:"NP",bwa:"WhatsApp",
+    scan:"स्क्यान\nसाइट हेर्न",talk:"कुरा गरौं",li:"LinkedIn",site:"मेरो साइट",
+    phoneLbl:"🇮🇳 भारत & 🇳🇵 नेपाल",show:"देखाउनुस्",hide:"लुकाउनुस्",np:"+977 98XX-XXXXXX"},
+  ar:{flag:"🇦🇪",code:"AR",expert:"⚡ خبير أتمتة الذكاء الاصطناعي",
+    r1t:"المؤسس والمدير التقني",r1o:"NKBWorks · تطوير الويب",
+    r2t:"المؤسس والمدير التقني",r2o:"SearchingTechRiva · تعليم AI",
+    r3t:"المدير التقني",r3o:"myadvise.info · منصة استشارية",
+    r4t:"الرئيس العالمي – الامتياز",r4o:"BICA · الهند · نيبال · UAE",
+    r5t:"معلم ومرشد",r5o:"الذكاء الاصطناعي · الأتمتة",
+    bweb:"موقع",bp1:"IN 1",bp2:"IN 2",bnp:"NP",bwa:"واتساب",
+    scan:"امسح\nالموقع",talk:"تواصل",li:"لينكد إن",site:"موقعي",
+    phoneLbl:"🇮🇳 الهند & 🇳🇵 نيبال",show:"عرض",hide:"إخفاء",np:"+977 98XX-XXXXXX"},
+  de:{flag:"🇩🇪",code:"DE",expert:"⚡ KI-Automatisierungsexperte",
+    r1t:"Gründer & CTO",r1o:"NKBWorks · Webentwicklung",
+    r2t:"Gründer & CTO",r2o:"SearchingTechRiva · KI/ML Bildung",
+    r3t:"CTO",r3o:"myadvise.info · Beratungsplattform",
+    r4t:"Globaler Leiter – Franchise",r4o:"BICA · Indien · Nepal · VAE",
+    r5t:"Lehrer & Mentor",r5o:"KI/ML · Automatisierung · Web",
+    bweb:"Website",bp1:"IN 1",bp2:"IN 2",bnp:"NP",bwa:"WhatsApp",
+    scan:"Scannen\nWebsite",talk:"Kontakt",li:"LinkedIn",site:"Meine Seite",
+    phoneLbl:"🇮🇳 Indien & 🇳🇵 Nepal",show:"Zeigen",hide:"Ausblenden",np:"+977 98XX-XXXXXX"},
+  zh:{flag:"🇨🇳",code:"ZH",expert:"⚡ AI自动化专家",
+    r1t:"创始人 & CTO",r1o:"NKBWorks · 网页开发",
+    r2t:"创始人 & CTO",r2o:"SearchingTechRiva · AI/ML教育",
+    r3t:"CTO",r3o:"myadvise.info · 咨询平台",
+    r4t:"全球特许经营负责人",r4o:"BICA · 印度 · 尼泊尔 · 阿联酋",
+    r5t:"教师 & 导师",r5o:"AI/ML · 自动化 · 网页",
+    bweb:"网站",bp1:"IN 1",bp2:"IN 2",bnp:"NP",bwa:"WhatsApp",
+    scan:"扫描\n访问网站",talk:"联系我",li:"领英",site:"我的网站",
+    phoneLbl:"🇮🇳 印度 & 🇳🇵 尼泊尔",show:"显示",hide:"隐藏",np:"+977 98XX-XXXXXX"},
+  ja:{flag:"🇯🇵",code:"JA",expert:"⚡ AI自動化エキスパート",
+    r1t:"創業者 & CTO",r1o:"NKBWorks · ウェブ開発",
+    r2t:"創業者 & CTO",r2o:"SearchingTechRiva · AI/ML教育",
+    r3t:"CTO",r3o:"myadvise.info · アドバイスPF",
+    r4t:"グローバルヘッド – フランチャイズ",r4o:"BICA · インド · ネパール · UAE",
+    r5t:"教師 & メンター",r5o:"AI/ML · 自動化 · ウェブ",
+    bweb:"ウェブ",bp1:"IN 1",bp2:"IN 2",bnp:"NP",bwa:"WhatsApp",
+    scan:"スキャン\nサイトへ",talk:"連絡する",li:"LinkedIn",site:"マイサイト",
+    phoneLbl:"🇮🇳 インド & 🇳🇵 ネパール",show:"表示",hide:"非表示",np:"+977 98XX-XXXXXX"},
+  ko:{flag:"🇰🇷",code:"KO",expert:"⚡ AI 자동화 전문가",
+    r1t:"창업자 & CTO",r1o:"NKBWorks · 웹 개발",
+    r2t:"창업자 & CTO",r2o:"SearchingTechRiva · AI/ML 교육",
+    r3t:"CTO",r3o:"myadvise.info · 자문 플랫폼",
+    r4t:"글로벌 헤드 – 프랜차이즈",r4o:"BICA · 인도 · 네팔 · UAE",
+    r5t:"교사 & 멘토",r5o:"AI/ML · 자동화 · 웹",
+    bweb:"웹사이트",bp1:"IN 1",bp2:"IN 2",bnp:"NP",bwa:"WhatsApp",
+    scan:"스캔\n사이트 방문",talk:"연락하기",li:"링크드인",site:"내 사이트",
+    phoneLbl:"🇮🇳 인도 & 🇳🇵 네팔",show:"표시",hide:"숨기기",np:"+977 98XX-XXXXXX"},
+  fr:{flag:"🇫🇷",code:"FR",expert:"⚡ Expert IA & Automatisation",
+    r1t:"Fondateur & CTO",r1o:"NKBWorks · Développement Web",
+    r2t:"Fondateur & CTO",r2o:"SearchingTechRiva · IA/ML",
+    r3t:"CTO",r3o:"myadvise.info · Conseil",
+    r4t:"Responsable Mondial – Franchise",r4o:"BICA · Inde · Népal · EAU",
+    r5t:"Enseignant & Mentor",r5o:"IA/ML · Automatisation · Web",
+    bweb:"Site",bp1:"IN 1",bp2:"IN 2",bnp:"NP",bwa:"WhatsApp",
+    scan:"Scanner\nle site",talk:"Contacter",li:"LinkedIn",site:"Mon site",
+    phoneLbl:"🇮🇳 Inde & 🇳🇵 Népal",show:"Afficher",hide:"Masquer",np:"+977 98XX-XXXXXX"},
+  es:{flag:"🇪🇸",code:"ES",expert:"⚡ Experto en Automatización IA",
+    r1t:"Fundador & CTO",r1o:"NKBWorks · Desarrollo Web",
+    r2t:"Fundador & CTO",r2o:"SearchingTechRiva · IA/ML",
+    r3t:"CTO",r3o:"myadvise.info · Asesoría",
+    r4t:"Jefe Global – Franquicias",r4o:"BICA · India · Nepal · EAU",
+    r5t:"Profesor & Mentor",r5o:"IA/ML · Automatización · Web",
+    bweb:"Sitio",bp1:"IN 1",bp2:"IN 2",bnp:"NP",bwa:"WhatsApp",
+    scan:"Escanear\nel sitio",talk:"Contactar",li:"LinkedIn",site:"Mi sitio",
+    phoneLbl:"🇮🇳 India & 🇳🇵 Nepal",show:"Mostrar",hide:"Ocultar",np:"+977 98XX-XXXXXX"},
+  si:{flag:"🇱🇰",code:"SI",expert:"⚡ AI ස්වයංක්‍රීය විශේෂඥ",
+    r1t:"නිර්මාතෘ & CTO",r1o:"NKBWorks · වෙබ් සංවර්ධන",
+    r2t:"නිර්මාතෘ & CTO",r2o:"SearchingTechRiva · AI/ML",
+    r3t:"CTO",r3o:"myadvise.info · උපදේශන",
+    r4t:"ගෝලීය ප්‍රධානී – BICA",r4o:"ඉන්දියාව · නේපාලය · UAE",
+    r5t:"ගුරු & උපදේශක",r5o:"AI/ML · ස්වයංක්‍රීය · වෙබ්",
+    bweb:"වෙබ්",bp1:"IN 1",bp2:"IN 2",bnp:"NP",bwa:"WhatsApp",
+    scan:"ස්කෑන්\nකරන්න",talk:"කතා කරමු",li:"LinkedIn",site:"මගේ අඩවිය",
+    phoneLbl:"🇮🇳 ඉන්දියාව & 🇳🇵 නේපාලය",show:"පෙන්වන්න",hide:"සඟවන්න",np:"+977 98XX-XXXXXX"},
+  ur:{flag:"🇵🇰",code:"UR",expert:"⚡ AI آٹومیشن ماہر",
+    r1t:"بانی اور CTO",r1o:"NKBWorks · ویب ڈویلپمنٹ",
+    r2t:"بانی اور CTO",r2o:"SearchingTechRiva · AI/ML تعلیم",
+    r3t:"CTO",r3o:"myadvise.info · مشاورت",
+    r4t:"عالمی سربراہ – BICA",r4o:"بھارت · نیپال · UAE",
+    r5t:"استاد اور رہنما",r5o:"AI/ML · آٹومیشن · ویب",
+    bweb:"ویب",bp1:"IN 1",bp2:"IN 2",bnp:"NP",bwa:"واٹس ایپ",
+    scan:"اسکین\nسائٹ دیکھیں",talk:"بات کریں",li:"LinkedIn",site:"میری سائٹ",
+    phoneLbl:"🇮🇳 بھارت & 🇳🇵 نیپال",show:"دکھائیں",hide:"چھپائیں",np:"+977 98XX-XXXXXX"},
+};
+
+function applyLang(k){
+  const d=L[k]||L.en; lang=k;
+  const rtl=['ar','ur'].includes(k);
+  document.documentElement.dir=rtl?'rtl':'ltr';
+  const map={
+    't-expert':'expert',
+    'r1t':'r1t','r1o':'r1o','r2t':'r2t','r2o':'r2o',
+    'r3t':'r3t','r3o':'r3o','r4t':'r4t','r4o':'r4o','r5t':'r5t','r5o':'r5o',
+    'b-web':'bweb','b-p1':'bp1','b-p2':'bp2','b-np':'bnp','b-wa':'bwa',
+    'btn-talk':'talk','btn-li':'li','btn-site':'site','phone-lbl':'phoneLbl','np-num':'np'
+  };
+  Object.entries(map).forEach(([id,key])=>{
+    const el=document.getElementById(id);if(el)el.textContent=d[key]||'';
+  });
+  document.getElementById('t-scan').innerHTML=d.scan.replace('\n','<br>');
+  document.getElementById('lbtn').textContent=d.flag+' '+d.code+' ▾';
+  document.getElementById('b-show').textContent=phonesOpen?d.hide:d.show;
+  document.querySelectorAll('.lo').forEach(el=>el.classList.toggle('active',el.dataset.lang===k));
+}
+function setLang(k){applyLang(k);document.getElementById('ldrop').classList.remove('open');}
+function toggleLang(){document.getElementById('ldrop').classList.toggle('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.lang-bar'))document.getElementById('ldrop').classList.remove('open');});
+
+/* ── PWA MANIFEST (inline blob) ── */
+(function(){
+  const manifest = {
+    name: "Sachin Tekriwal",
+    short_name: "Sachin T",
+    description: "AI Automation Expert | Founder & CTO",
+    start_url: "./",
+    display: "fullscreen",
+    orientation: "portrait",
+    background_color: "#06090f",
+    theme_color: "#06090f",
+    icons: [
+      {
+        src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%230d1222'/><rect x='0' y='0' width='512' height='6' fill='url(%23p)'/><defs><linearGradient id='p' x1='0' y1='0' x2='1' y2='0'><stop offset='0%25' stop-color='%23e0f0ff'/><stop offset='33%25' stop-color='%23c8b8ff'/><stop offset='66%25' stop-color='%23f5c8ff'/><stop offset='100%25' stop-color='%23e0f0ff'/></linearGradient></defs><text x='256' y='340' font-size='280' font-weight='900' text-anchor='middle' fill='url(%23g)' font-family='serif'>ST</text><defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'><stop offset='0%25' stop-color='%23e8f0ff'/><stop offset='100%25' stop-color='%23c0a8ff'/></linearGradient></defs></svg>",
+        sizes: "512x512",
+        type: "image/svg+xml",
+        purpose: "any maskable"
+      }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  document.getElementById('pwa-manifest').href = url;
+})();
+
+/* ── SERVICE WORKER (offline cache) ── */
+if('serviceWorker' in navigator){
+  const swCode = `
+self.addEventListener('install',e=>{ self.skipWaiting(); });
+self.addEventListener('activate',e=>{ e.waitUntil(clients.claim()); });
+self.addEventListener('fetch',e=>{
+  e.respondWith(
+    caches.open('sachin-card-v1').then(cache=>
+      cache.match(e.request).then(cached=> cached || fetch(e.request).then(res=>{
+        cache.put(e.request, res.clone()); return res;
+      }).catch(()=>cached))
+    )
+  );
+});`;
+  const swBlob = new Blob([swCode],{type:'application/javascript'});
+  const swUrl = URL.createObjectURL(swBlob);
+  navigator.serviceWorker.register(swUrl).catch(()=>{});
+}
+
+/* ── INSTALL PROMPT ── */
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  showInstallBanner();
+});
+
+// Also show on iOS (Safari doesn't fire beforeinstallprompt)
+window.addEventListener('load', () => {
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isInStandalone = window.navigator.standalone === true;
+  const isAndroidStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+  if (isInStandalone || isAndroidStandalone) return; // already installed
+
+  setTimeout(() => {
+    if (!deferredPrompt && isIOS) {
+      showIOSBanner();
+    } else if (deferredPrompt) {
+      showInstallBanner();
+    } else {
+      // Desktop / other — show after 2s
+      setTimeout(showInstallBanner, 1200);
+    }
+  }, 1800);
+});
+
+function showInstallBanner() {
+  if (document.getElementById('install-banner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'install-banner';
+  banner.innerHTML = `
+    <div id="ib-inner">
+      <div id="ib-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <rect width="32" height="32" rx="8" fill="#0d1222"/>
+          <rect x="0" y="0" width="32" height="3" fill="url(#ibp)" rx="2"/>
+          <text x="16" y="23" font-size="17" font-weight="900" text-anchor="middle" fill="#c8b8ff" font-family="serif">ST</text>
+          <defs><linearGradient id="ibp" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#c8b8ff"/><stop offset="100%" stop-color="#f5c8ff"/></linearGradient></defs>
+        </svg>
+      </div>
+      <div id="ib-text">
+        <div id="ib-title">Add to Home Screen</div>
+        <div id="ib-sub">Save Sachin's card on your device</div>
+      </div>
+      <button id="ib-add" onclick="triggerInstall()">Add</button>
+      <button id="ib-close" onclick="dismissBanner()">✕</button>
+    </div>`;
+  document.body.appendChild(banner);
+  // Animate in
+  requestAnimationFrame(()=>{ banner.style.transform='translateY(0)'; banner.style.opacity='1'; });
+}
+
+function showIOSBanner() {
+  if (document.getElementById('install-banner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'install-banner';
+  banner.innerHTML = `
+    <div id="ib-inner">
+      <div id="ib-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <rect width="32" height="32" rx="8" fill="#0d1222"/>
+          <text x="16" y="23" font-size="17" font-weight="900" text-anchor="middle" fill="#c8b8ff" font-family="serif">ST</text>
+        </svg>
+      </div>
+      <div id="ib-text">
+        <div id="ib-title">Add to Home Screen</div>
+        <div id="ib-sub">Tap <strong>Share</strong> then <strong>"Add to Home Screen"</strong></div>
+      </div>
+      <button id="ib-close" onclick="dismissBanner()">✕</button>
+    </div>`;
+  document.body.appendChild(banner);
+  requestAnimationFrame(()=>{ banner.style.transform='translateY(0)'; banner.style.opacity='1'; });
+}
+
+function triggerInstall() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(()=>{ deferredPrompt=null; dismissBanner(); });
+  }
+}
+function dismissBanner() {
+  const b = document.getElementById('install-banner');
+  if (b) { b.style.transform='translateY(120px)'; b.style.opacity='0'; setTimeout(()=>b.remove(),400); }
+}
+
+/* ── BANNER STYLES injected into head ── */
+const bannerStyle = document.createElement('style');
+bannerStyle.textContent = `
+#install-banner{
+  position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  padding:10px 12px 14px;
+  background:linear-gradient(180deg,rgba(14,18,34,0.97),rgba(10,13,26,0.99));
+  border-top:1px solid rgba(255,255,255,0.1);
+  border-radius:20px 20px 0 0;
+  box-shadow:0 -4px 40px rgba(0,0,0,0.7),0 -1px 0 rgba(200,180,255,0.15);
+  transform:translateY(120px);opacity:0;
+  transition:transform .4s cubic-bezier(.22,1,.36,1),opacity .3s;
+  backdrop-filter:blur(20px);
+}
+#ib-inner{display:flex;align-items:center;gap:12px;}
+#ib-icon{flex-shrink:0;border-radius:10px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.5);}
+#ib-text{flex:1;min-width:0;}
+#ib-title{font-size:14px;font-weight:700;color:#eaf2ff;}
+#ib-sub{font-size:11px;color:rgba(180,200,240,0.6);margin-top:2px;}
+#ib-add{
+  padding:8px 18px;border-radius:20px;border:none;cursor:pointer;
+  background:linear-gradient(135deg,#c8b8ff,#a888ff);
+  color:#080d18;font-size:13px;font-weight:700;flex-shrink:0;
+  box-shadow:0 2px 12px rgba(180,150,255,0.4);
+}
+#ib-add:hover{opacity:.88;}
+#ib-close{
+  background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);
+  color:rgba(200,215,255,.6);font-size:14px;
+  width:30px;height:30px;border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+`;
+document.head.appendChild(bannerStyle);
+</script>
+</body>
+</html>
